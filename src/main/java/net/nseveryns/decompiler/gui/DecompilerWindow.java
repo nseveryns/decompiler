@@ -18,19 +18,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author nseveryns
  */
-public class DecompilerWindow extends JSplitPane implements View {
+public class DecompilerWindow extends JFrame implements View {
     private final List<Project> projects;
+    private final ProjectSidebar sidebar;
+    private final JPanel code;
 
     public DecompilerWindow() {
-        super(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(), new JTextArea("Drag files here."));
-        this.setOneTouchExpandable(true);
-        this.setDividerLocation(150);
         projects = new CopyOnWriteArrayList<>();
         this.setLayout(new BorderLayout());
-        this.setDropTarget(new DropTarget() {
+        DecompilerMenu menu = new DecompilerMenu();
+        menu.addMenuItem(new SettingsMenuItem());
+        this.setJMenuBar(menu);
+
+        this.code = new JPanel();
+        this.sidebar = new ProjectSidebar(projects);
+        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, code);
+        pane.setDropTarget(new DropTarget() {
             @Override
             public synchronized void drop(DropTargetDropEvent event) {
-                event.acceptDrop(DnDConstants.ACTION_COPY);
+                event.acceptDrop(DnDConstants.ACTION_LINK);
                 try {
                     Object obj = event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     if (!(obj instanceof List)) {
@@ -38,17 +44,16 @@ public class DecompilerWindow extends JSplitPane implements View {
                     }
                     //noinspection unchecked
                     List<File> droppedFiles = (List<File>) obj;
-
-                    for (File file : droppedFiles) {
-                        decompileFile(file);
-                    }
+                    droppedFiles.forEach(DecompilerWindow.this::decompileFile);
                 } catch (UnsupportedFlavorException | IOException e) {
                     e.printStackTrace();
                 }
-
             }
         });
+        this.add(pane);
         this.setSize(500, 500);
+        this.setAlwaysOnTop(true);
+        this.setResizable(true);
         this.setVisible(true);
     }
 
