@@ -1,28 +1,30 @@
 package net.nseveryns.decompiler.gui;
 
-import net.nseveryns.decompiler.Project;
-import net.nseveryns.decompiler.transformer.JarDecompiler;
-import net.nseveryns.decompiler.transformer.Transformer;
-import net.nseveryns.decompiler.transformer.Transformers;
-import org.apache.commons.io.FilenameUtils;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.WindowConstants;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.TextArea;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
+import net.nseveryns.decompiler.Project;
+import net.nseveryns.decompiler.transformer.Transformers;
+import org.apache.commons.io.FilenameUtils;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
  * @author nseveryns
@@ -64,7 +66,6 @@ public class DecompilerWindow extends JFrame implements View {
         });
         this.add(pane);
         this.setSize(500, 500);
-        this.setAlwaysOnTop(true);
         this.setResizable(true);
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -84,9 +85,8 @@ public class DecompilerWindow extends JFrame implements View {
         }
     }
 
-    private void decompileFile(File file) {
-        String extension = FilenameUtils.getExtension(file.getName());
-        switch (extension) {
+    private void decompileFile(File file, String ending) {
+        switch (ending) {
             case "java":
                 Transformers.JAVA.getInstance().decompile(file, code::setText);
                 break;
@@ -101,10 +101,9 @@ public class DecompilerWindow extends JFrame implements View {
     }
 
     private void addProjects(Project project) {
-        System.out.println(project.getFiles());
-        for (File file : project.getFiles()) {
-            JButton field = new JButton(file.getName());
-            field.addActionListener(e -> decompileFile(file));
+        for (Map.Entry<String, File> entry : project.getFiles().entrySet()) {
+            JButton field = new JButton(entry.getKey());
+            field.addActionListener(e -> decompileFile(entry.getValue(), FilenameUtils.getExtension(entry.getKey())));
             this.sidebar.add(field);
         }
     }

@@ -1,18 +1,19 @@
 package net.nseveryns.decompiler.transformer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.nseveryns.decompiler.Project;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 public class JarDecompiler implements Transformer {
     @Override
@@ -20,16 +21,21 @@ public class JarDecompiler implements Transformer {
         try {
             JarFile jarFile = new JarFile(file);
             Enumeration<JarEntry> entries = jarFile.entries();
-            List<File> files = new ArrayList<>();
+            Map<String, File> files = new HashMap<>();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 InputStream stream = jarFile.getInputStream(entry);
-                File cachedFile = new File("./cache/" + file.getName());
-                if (cachedFile.exists()) {
-                    cachedFile.mkdir();
+                byte[] buffer = IOUtils.toByteArray(stream);
+                String name = FilenameUtils.getName(entry.getName());
+                if (name.isEmpty()) {
+                    name = entry.getName();
                 }
-                FileUtils.copyInputStreamToFile(stream, cachedFile);
-                files.add(cachedFile);
+                String suffix = FilenameUtils.getExtension(name);
+                File cachedFile = File.createTempFile(name, suffix);
+
+                FileOutputStream output = new FileOutputStream(cachedFile);
+                output.write(buffer);
+                files.put(name, cachedFile);
             }
             return new Project(file.getName(), files);
         } catch (IOException e) {

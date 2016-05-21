@@ -1,12 +1,11 @@
 package net.nseveryns.decompiler.gui;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
-import net.nseveryns.decompiler.Project;
 
 import java.awt.Color;
 import java.util.List;
+
+import net.nseveryns.decompiler.Project;
 
 /**
  * @author nseveryns
