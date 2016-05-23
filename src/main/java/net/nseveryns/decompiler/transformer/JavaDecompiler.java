@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.function.Consumer;
 
+import com.google.common.collect.ImmutableMap;
 import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -12,7 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 public class JavaDecompiler implements Transformer {
     @Override
     public Project createProject(File file) {
-        return new Project(file.getName(), Collections.emptyMap());
+        return new Project(file.getName(), ImmutableMap.of(file.getName(), file));
     }
 
     @Override
