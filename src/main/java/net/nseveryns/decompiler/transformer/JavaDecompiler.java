@@ -13,7 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 public class JavaDecompiler implements Transformer {
     @Override
     public Project createProject(File file) {
-        return new Project(file.getName(), ImmutableMap.of(file.getName(), file));
+        return new Project(file.getName(), ImmutableMap.of(file.getName(), file), true);
     }
 
     @Override

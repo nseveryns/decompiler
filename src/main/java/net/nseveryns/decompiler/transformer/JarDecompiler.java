@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.google.common.io.Files;
 import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -22,6 +23,7 @@ public class JarDecompiler implements Transformer {
             JarFile jarFile = new JarFile(file);
             Enumeration<JarEntry> entries = jarFile.entries();
             Map<String, File> files = new HashMap<>();
+            File dir = Files.createTempDir();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 if (entry.isDirectory()) {
@@ -33,8 +35,7 @@ public class JarDecompiler implements Transformer {
                 if (name.isEmpty()) {
                     name = entry.getName();
                 }
-                String suffix = FilenameUtils.getExtension(name);
-                File cachedFile = File.createTempFile(name, suffix);
+                File cachedFile = new File(dir, name);
 
                 FileOutputStream output = new FileOutputStream(cachedFile);
                 output.write(buffer);

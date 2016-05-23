@@ -1,7 +1,6 @@
 package net.nseveryns.decompiler;
 
 import net.nseveryns.decompiler.gui.DecompilerWindow;
-import net.nseveryns.decompiler.gui.View;
 
 /**
  * @author nseveryns
@@ -9,7 +8,7 @@ import net.nseveryns.decompiler.gui.View;
 public class Decompiler {
 
     public static void main(String[] args) {
-        View view = new DecompilerWindow();
+        new DecompilerWindow();
     }
 
 }

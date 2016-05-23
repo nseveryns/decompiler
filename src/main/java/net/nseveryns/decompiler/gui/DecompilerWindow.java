@@ -1,27 +1,28 @@
 package net.nseveryns.decompiler.gui;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
-import java.awt.BorderLayout;
-import java.awt.TextArea;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.nseveryns.decompiler.Project;
 import net.nseveryns.decompiler.transformer.Transformers;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -30,7 +31,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 /**
  * @author nseveryns
  */
-public class DecompilerWindow extends JFrame implements View {
+public class DecompilerWindow extends JFrame {
     private final List<Project> projects;
     private final ProjectSidebar sidebar;
     private final RSyntaxTextArea code;
@@ -98,28 +99,35 @@ public class DecompilerWindow extends JFrame implements View {
                 break;
             case "jar":
                 addProject(file);
-            default:
                 break;
+            default:
+                Transformers.DEFAULT.getInstance().decompile(file, code::setText);
         }
     }
 
     private void addProjects(Project project) {
         for (Map.Entry<String, File> entry : project.getFiles().entrySet()) {
             JButton field = new JButton(entry.getKey());
-            field.addActionListener(e -> decompileFile(entry.getValue(), FilenameUtils.getExtension(entry.getKey())));
+            field.addActionListener(e -> {
+                DecompilerWindow.this.decompileFile(entry.getValue(), FilenameUtils.getExtension(entry.getKey()));
+                code.setEditable(project.isEditable());
+                code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+                        "actionMapKey");
+                code.getActionMap().put("actionMapKey", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Saving.");
+                        String text = code.getText();
+                        try {
+                            FileUtils.writeStringToFile(entry.getValue(), text);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
+            });
             this.sidebar.add(field);
         }
-    }
-
-    private boolean hasOpenProject() {
-        return !projects.isEmpty();
-    }
-
-    @Override
-    public void update() {
-        if (hasOpenProject()) {
-            this.add(new JScrollPane());
-        }
-        this.add(new TextArea("Drag and drop files here to decompile."));
     }
 }
