@@ -24,6 +24,9 @@ public class JarDecompiler implements Transformer {
             Map<String, File> files = new HashMap<>();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    continue;
+                }
                 InputStream stream = jarFile.getInputStream(entry);
                 byte[] buffer = IOUtils.toByteArray(stream);
                 String name = FilenameUtils.getName(entry.getName());

@@ -1,10 +1,8 @@
 package net.nseveryns.decompiler.transformer;
 
-import net.nseveryns.decompiler.transformer.dissambler.JavacDissasembler;
-
 public enum Transformers {
     JAVA(new JavaDecompiler()),
-    CLASS(new JavacDissasembler()),
+    CLASS(new ClassDecompiler()),
     JAR(new JarDecompiler());
 
     private final Transformer transformer;
