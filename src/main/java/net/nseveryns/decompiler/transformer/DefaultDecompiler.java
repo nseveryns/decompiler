@@ -1,15 +1,16 @@
 package net.nseveryns.decompiler.transformer;
 
 import com.google.common.collect.ImmutableMap;
-import com.sun.codemodel.internal.JOp;
-import net.nseveryns.decompiler.Project;
-import org.apache.commons.io.FileUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
+
+import net.nseveryns.decompiler.Project;
+import org.apache.commons.io.FileUtils;
 
 /**
  * @author nseveryns

@@ -1,5 +1,7 @@
 package net.nseveryns.decompiler.transformer;
 
+import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,7 +13,6 @@ import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.google.common.io.Files;
 import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

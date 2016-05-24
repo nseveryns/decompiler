@@ -1,11 +1,11 @@
 package net.nseveryns.decompiler.transformer;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.function.Consumer;
 
-import com.google.common.collect.ImmutableMap;
 import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
