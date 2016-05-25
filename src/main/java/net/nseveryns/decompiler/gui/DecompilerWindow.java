@@ -1,13 +1,6 @@
 package net.nseveryns.decompiler.gui;
 
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
@@ -41,6 +34,7 @@ public class DecompilerWindow extends JFrame {
     private final List<Project> projects;
     private final ProjectSidebar sidebar;
     private final RSyntaxTextArea code;
+    private final JScrollPane scrollPane;
     private final Executor executor;
 
     public DecompilerWindow() {
@@ -56,7 +50,7 @@ public class DecompilerWindow extends JFrame {
         this.code.setEditable(false);
         this.sidebar = new ProjectSidebar();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        JScrollPane scrollPane = new JScrollPane(sidebar);
+        this.scrollPane = new JScrollPane(sidebar);
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, new RTextScrollPane(code));
         pane.setResizeWeight(.2);
         pane.setDropTarget(new DropTarget() {
@@ -141,6 +135,7 @@ public class DecompilerWindow extends JFrame {
                 });
             });
             this.sidebar.add(field);
+            this.sidebar.updateUI();
         }
     }
 }

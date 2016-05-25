@@ -6,11 +6,11 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class ConstantPoolReader {
+public class ConstantPoolTable {
     private final int count;
     private final Entry[] entries;
 
-    public ConstantPoolReader(ByteBuf buf) {
+    public ConstantPoolTable(ByteBuf buf) {
         this.count = buf.readUnsignedShort();
         this.entries = new Entry[count-1];
         for (int i = 0; i < this.entries.length; i++) {
