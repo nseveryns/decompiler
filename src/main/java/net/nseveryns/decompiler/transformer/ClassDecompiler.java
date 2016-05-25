@@ -18,7 +18,6 @@ import net.nseveryns.decompiler.Project;
 import net.nseveryns.decompiler.transformer.format.clazz.Attribute;
 import net.nseveryns.decompiler.transformer.format.clazz.ConstantPoolReader;
 import net.nseveryns.decompiler.transformer.format.clazz.FieldTable;
-import net.nseveryns.decompiler.transformer.format.clazz.MethodTable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -136,7 +135,7 @@ public class ClassDecompiler implements Transformer {
         ABSTRACT(0x0400),
         SYNTHETIC(0x1000),
         ANNOTATION(0x2000),
-        ENUM(0x4000),;
+        ENUM(0x4000);
 
         private final int flag;
 

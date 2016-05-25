@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import net.nseveryns.decompiler.Project;
 import net.nseveryns.decompiler.transformer.Transformers;
@@ -39,9 +41,11 @@ public class DecompilerWindow extends JFrame {
     private final List<Project> projects;
     private final ProjectSidebar sidebar;
     private final RSyntaxTextArea code;
+    private final Executor executor;
 
     public DecompilerWindow() {
-        projects = new CopyOnWriteArrayList<>();
+        this.executor = Executors.newSingleThreadExecutor();
+        this.projects = new CopyOnWriteArrayList<>();
         this.setLayout(new BorderLayout());
         DecompilerMenu menu = new DecompilerMenu();
         menu.addMenuItem(new SettingsMenuItem());
@@ -83,10 +87,12 @@ public class DecompilerWindow extends JFrame {
         String extension = FilenameUtils.getExtension(file.getName());
         switch (extension) {
             case "java":
-                addProjects(Transformers.JAVA.getInstance().createProject(file));
+                this.addProjects(Transformers.JAVA.getInstance().createProject(file));
                 break;
+            case "class":
+                this.addProjects(Transformers.CLASS.getInstance().createProject(file));
             case "jar":
-                addProjects(Transformers.JAR.getInstance().createProject(file));
+                executor.execute(() -> this.addProjects(Transformers.JAR.getInstance().createProject(file)));
                 break;
             default:
                 break;
@@ -94,18 +100,20 @@ public class DecompilerWindow extends JFrame {
     }
 
     private void decompileFile(File file, String ending) {
+        code.setText("Decompiling... please wait.");
         switch (ending) {
             case "java":
-                Transformers.JAVA.getInstance().decompile(file, code::setText);
+                executor.execute(() -> Transformers.JAVA.getInstance().decompile(file, code::setText));
                 break;
             case "class":
-                Transformers.CLASS.getInstance().decompile(file, code::setText);
+                executor.execute(() -> Transformers.CLASS.getInstance().decompile(file, code::setText));
                 break;
             case "jar":
+                code.setText("");
                 addProject(file);
                 break;
             default:
-                Transformers.DEFAULT.getInstance().decompile(file, code::setText);
+                executor.execute(() -> Transformers.DEFAULT.getInstance().decompile(file, code::setText));
         }
     }
 
@@ -121,13 +129,14 @@ public class DecompilerWindow extends JFrame {
                 code.getActionMap().put("actionMapKey", new AbstractAction() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.out.println("Saving.");
-                        String text = code.getText();
-                        try {
-                            FileUtils.writeStringToFile(entry.getValue(), text);
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
+                        executor.execute(() -> {
+                            String text = code.getText();
+                            try {
+                                FileUtils.writeStringToFile(entry.getValue(), text);
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        });
                     }
                 });
             });
