@@ -108,7 +108,7 @@ public class JavaFormatter {
             }
         }
         String methodName = readString(constants.getEntry(method.getNameIndex()));
-        if (methodName.equals("<init>")) {
+        if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
             builder.append(FilenameUtils.getName(readString(constants.getEntry(getShort(constants.getEntry(identity))))));
             builder.append("() {").append("\n\n").append(SPACES).append("}").append("\n");
             return;
@@ -119,6 +119,17 @@ public class JavaFormatter {
             switch (name) {
                 case "Code":
                     CodeAttribute code = new CodeAttribute(attribute);
+                    byte[] bytes = code.getCode();
+                    for (byte b : bytes) {
+                        String s = codes.get(b);
+                        if (s == null) {
+                            continue;
+                        }
+                        builder.append(s).append("\n");
+                    }
+                    for (Attribute subAttrib : code.getAttributes()) {
+                        System.out.println(readString(constants.getEntry(subAttrib.getAttributeNameIndex())));
+                    }
             }
         }
         builder.append("\n").append(SPACES).append("}").append("\n");
