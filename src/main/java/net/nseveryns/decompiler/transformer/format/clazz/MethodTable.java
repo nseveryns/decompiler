@@ -33,22 +33,16 @@ public class MethodTable {
             this.flags = buf.readUnsignedShort();
             this.nameIndex = buf.readUnsignedShort();
             this.descriptorIndex = buf.readUnsignedShort();
-            this.attributes = new Attribute[buf.readUnsignedShort()];
+            int length = buf.readUnsignedShort();
+            System.out.println("There are " + length + " attributes in one method.");
+            this.attributes = new Attribute[length];
+            for (int i = 0; i < this.attributes.length; i++) {
+                attributes[i] = new Attribute(buf);
+            }
         }
 
         public int getFlags() {
             return flags;
-        }
-
-        public String formatFlags() {
-            StringBuilder builder = new StringBuilder();
-            System.out.println("Flags: " + this.flags);
-            for (MethodFlags methodFlags : MethodFlags.values()) {
-                if ((this.flags & methodFlags.flag) == 1) {
-                    builder.append(methodFlags.name().toLowerCase());
-                }
-            }
-            return builder.toString();
         }
 
         public int getNameIndex() {
@@ -63,30 +57,5 @@ public class MethodTable {
             return attributes;
         }
 
-    }
-
-    private enum MethodFlags {
-        PUBLIC(0x0001),
-        PRIVATE(0x0002),
-        PROTECTED(0x0004),
-        STATIC(0x0008),
-        FINAL(0x0010),
-        SYNCHRONIZED(0x0020),
-        BRIDGE(0x0040),
-        VARARGS(0x0080),
-        NATIVE(0x0100),
-        ABSTRACT(0x0400),
-        STRICTFP(0x0800),
-        SYNTHETIC(0x1000);
-
-        private final int flag;
-
-        MethodFlags(int flag) {
-            this.flag = flag;
-        }
-
-        public int getFlag() {
-            return flag;
-        }
     }
 }

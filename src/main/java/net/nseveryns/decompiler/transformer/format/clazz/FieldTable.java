@@ -31,7 +31,12 @@ public class FieldTable {
             this.flags = buf.readUnsignedShort();
             this.nameIndex = buf.readUnsignedShort();
             this.descriptorIndex = buf.readUnsignedShort();
-            this.attributes = new Attribute[buf.readUnsignedShort()];
+            int length = buf.readUnsignedShort();
+            System.out.println("There are " + length + " attributes in one field.");
+            this.attributes = new Attribute[length];
+            for (int i = 0; i < this.attributes.length; i++) {
+                attributes[i] = new Attribute(buf);
+            }
         }
 
         public int getFlags() {

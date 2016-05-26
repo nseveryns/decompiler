@@ -67,7 +67,6 @@ public class ClassDecompiler implements Transformer {
     }
 
     private String readToCode(byte[] bytes) {
-        StringBuilder builder = new StringBuilder();
         ByteBuf buf = Unpooled.copiedBuffer(bytes);
         buf.skipBytes(8); //Skip cafebabe, major and minor
         ConstantPoolTable parser = new ConstantPoolTable(buf);
@@ -87,7 +86,6 @@ public class ClassDecompiler implements Transformer {
         //            .append(new String(parser.getEntry(method.getNameIndex()+1).getBytes()))
         //            .append("\n");
         //}
-        Attribute attribute = new Attribute(buf);
 
         return new JavaFormatter(accessBitmask, identity, parser, fields, methods).format();
         /*

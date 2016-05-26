@@ -28,7 +28,8 @@ public class JavaFormatter {
         this.builder = new StringBuilder();
         this.imports = new HashSet<>();
         this.addHeader();
-        addFields();
+        this.addFields();
+        this.addMethods();
         this.finish();
     }
 
@@ -42,6 +43,9 @@ public class JavaFormatter {
         boolean classType = true;
         for (ClassAccessFlags flags : ClassAccessFlags.values()) {
             if ((accessBitmask & flags.flag) == flags.flag) {
+                if (flags == ClassAccessFlags.SYNTHETIC) {
+                    return;
+                }
                 builder.append(flags.name().toLowerCase()).append(" ");
                 if (flags == ClassAccessFlags.ENUM || flags == ClassAccessFlags.INTERFACE) {
                     classType = false;
@@ -59,6 +63,36 @@ public class JavaFormatter {
         builder.append(" {\n");
     }
 
+    private void addMethods() {
+        for (MethodTable.Method method : this.methods.getMethods()) {
+            addMethod(method);
+        }
+    }
+
+    private void addMethod(MethodTable.Method method) {
+        builder.append("\n");
+        builder.append(SPACES);
+        for (MethodAccessFlags flags : MethodAccessFlags.values()) {
+            if ((method.getFlags() & flags.flag) == flags.flag) {
+                if (flags == MethodAccessFlags.SYNTHETIC) {
+                    return;
+                }
+                builder.append(flags.name().toLowerCase()).append(" ");
+            }
+        }
+        String methodName = readString(constants.getEntry(method.getNameIndex()));
+        if (methodName.equals("<init>")) {
+            builder.append(FilenameUtils.getName(readString(constants.getEntry(getShort(constants.getEntry(identity))))));
+            builder.append("() {").append("\n\n").append(SPACES).append("}").append("\n");
+            return;
+        }
+        builder.append(methodName);
+        builder.append("() {");
+        builder.append("\n\n");
+        builder.append("}");
+        builder.append("\n");
+    }
+
     private void addFields() {
         for (FieldTable.Field field : this.fields.getFields()) {
             this.addField(field);
@@ -69,6 +103,9 @@ public class JavaFormatter {
         builder.append(SPACES);
         for (FieldAccessFlags flags : FieldAccessFlags.values()) {
             if ((field.getFlags() & flags.flag) == flags.flag) {
+                if (flags == FieldAccessFlags.SYNTHETIC) {
+                    return;
+                }
                 builder.append(flags.name().toLowerCase()).append(" ");
             }
         }
@@ -107,12 +144,12 @@ public class JavaFormatter {
     }
 
     private enum ClassAccessFlags {
+        SYNTHETIC(0x1000),
         PUBLIC(0x0001),
         FINAL(0x0010),
         SUPER(0x0020),
         ABSTRACT(0x0400),
         INTERFACE(0x0200),
-        SYNTHETIC(0x1000),
         ANNOTATION(0x2000),
         ENUM(0x4000);
 
@@ -129,6 +166,7 @@ public class JavaFormatter {
     }
 
     private enum FieldAccessFlags {
+        SYNTHETIC(0x1000),
         PUBLIC(0x0001),
         PRIVATE(0x0002),
         PROTECTED(0x0004),
@@ -136,7 +174,6 @@ public class JavaFormatter {
         FINAL(0x0010),
         VOLATILE(0x0040),
         TRANSIENT(0x0080),
-        SYNTHETIC(0x1000),
         ENUM(0x4000);
 
         private final int flag;
@@ -144,6 +181,32 @@ public class JavaFormatter {
         FieldAccessFlags(int flag) {
             this.flag = flag;
         }
+        public int getFlag() {
+            return flag;
+        }
+    }
+
+
+    private enum MethodAccessFlags {
+        SYNTHETIC(0x1000),
+        PUBLIC(0x0001),
+        PRIVATE(0x0002),
+        PROTECTED(0x0004),
+        STATIC(0x0008),
+        FINAL(0x0010),
+        SYNCHRONIZED(0x0020),
+        BRIDGE(0x0040),
+        VARARGS(0x0080),
+        NATIVE(0x0100),
+        ABSTRACT(0x0400),
+        STRICTFP(0x0800);
+
+        private final int flag;
+
+        MethodAccessFlags(int flag) {
+            this.flag = flag;
+        }
+
         public int getFlag() {
             return flag;
         }
