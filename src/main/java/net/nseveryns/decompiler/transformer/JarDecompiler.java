@@ -1,6 +1,9 @@
 package net.nseveryns.decompiler.transformer;
 
 import com.google.common.io.Files;
+import net.nseveryns.decompiler.Project;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,10 +15,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import net.nseveryns.decompiler.Project;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 
 /**
  * The will extract the class and resources from inside of a jar file. This will only be used

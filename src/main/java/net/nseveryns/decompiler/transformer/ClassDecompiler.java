@@ -1,9 +1,16 @@
 package net.nseveryns.decompiler.transformer;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
-import com.google.common.collect.ImmutableMap;
+import net.nseveryns.decompiler.Project;
+import net.nseveryns.decompiler.transformer.format.clazz.ConstantPoolTable;
+import net.nseveryns.decompiler.transformer.format.clazz.FieldTable;
+import net.nseveryns.decompiler.transformer.format.clazz.JavaFormatter;
+import net.nseveryns.decompiler.transformer.format.clazz.MethodTable;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,26 +21,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import net.nseveryns.decompiler.Project;
-import net.nseveryns.decompiler.transformer.format.clazz.*;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-
 public class ClassDecompiler implements Transformer {
-    private final Map<Byte, String> codes;
+    private final Map<Integer, String> codes;
 
     public ClassDecompiler() {
         InputStream inputStream = this.getClass().getResourceAsStream("/opcodes.txt");
-        Map<Byte, String> codeToString = new HashMap<>();
+        Map<Integer, String> codeToString = new HashMap<>();
         try {
             List<String> lines = IOUtils.readLines(inputStream);
             for (String line : lines) {
                 String code;
-                byte identifier;
+                int identifier;
                 try {
                     String[] split = line.split(" ");
                     code = split[0];
-                    identifier = Byte.parseByte(split[1], 16);
+                    identifier = Integer.decode(split[1]);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     continue;

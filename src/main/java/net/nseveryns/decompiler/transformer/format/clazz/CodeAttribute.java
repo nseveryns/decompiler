@@ -3,6 +3,11 @@ package net.nseveryns.decompiler.transformer.format.clazz;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+/**
+ *
+ * Object representation of an attribute that contains code data
+ *
+ */
 public class CodeAttribute {
     private final int maxStack;
     private final int maxLocals;

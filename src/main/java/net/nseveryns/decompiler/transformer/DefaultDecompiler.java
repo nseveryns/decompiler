@@ -1,20 +1,18 @@
 package net.nseveryns.decompiler.transformer;
 
 import com.google.common.collect.ImmutableMap;
+import net.nseveryns.decompiler.Project;
+import org.apache.commons.io.FileUtils;
 
-import javax.swing.JOptionPane;
-
-import java.awt.Desktop;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.nseveryns.decompiler.Project;
-import org.apache.commons.io.FileUtils;
-
 /**
  * Decompiles any file type that is not a java, class, or jar file.
- *
+ * <p>
  * This will prompt the user if they want to open it in the default application on their computer.
  *
  * @author nseveryns

@@ -1,10 +1,9 @@
 package net.nseveryns.decompiler.transformer.format.clazz;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.function.Function;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Constant pool reader and data holder based on the JVM specifications.
@@ -12,12 +11,11 @@ import org.apache.commons.lang3.ArrayUtils;
  * @link http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
  */
 public class ConstantPoolTable {
-    private final int count;
     private final Entry[] entries;
 
     public ConstantPoolTable(ByteBuf buf) {
-        this.count = buf.readUnsignedShort();
-        this.entries = new Entry[count-1];
+        int count = buf.readUnsignedShort();
+        this.entries = new Entry[count - 1];
         for (int i = 0; i < this.entries.length; i++) {
             this.entries[i] = new Entry(buf);
         }
@@ -28,24 +26,6 @@ public class ConstantPoolTable {
             index++;
         }
         return this.entries[index - 1];
-    }
-
-    public class Entry {
-        private final ConstantTagType type;
-        private final byte[] bytes;
-
-        public Entry(ByteBuf buf) {
-            this.type = ConstantTagType.getFromTag(buf.readByte());
-            this.bytes = this.type != null ? this.type.getBytes(buf) : new byte[0];
-        }
-
-        public ConstantTagType getType() {
-            return type;
-        }
-
-        public byte[] getBytes() {
-            return bytes;
-        }
     }
 
     enum ConstantTagType {
@@ -84,10 +64,6 @@ public class ConstantPoolTable {
             this.read = read;
         }
 
-        public byte[] getBytes(ByteBuf buf) {
-            return ArrayUtils.toPrimitive(read.apply(buf));
-        }
-
         public static ConstantTagType getFromTag(int tag) {
             for (ConstantTagType type : values()) { //TODO: Put into map
                 if (type.tag == tag) {
@@ -95,6 +71,28 @@ public class ConstantPoolTable {
                 }
             }
             return null;
+        }
+
+        public byte[] getBytes(ByteBuf buf) {
+            return ArrayUtils.toPrimitive(read.apply(buf));
+        }
+    }
+
+    public class Entry {
+        private final ConstantTagType type;
+        private final byte[] bytes;
+
+        public Entry(ByteBuf buf) {
+            this.type = ConstantTagType.getFromTag(buf.readByte());
+            this.bytes = this.type != null ? this.type.getBytes(buf) : new byte[0];
+        }
+
+        public ConstantTagType getType() {
+            return type;
+        }
+
+        public byte[] getBytes() {
+            return bytes;
         }
     }
 }

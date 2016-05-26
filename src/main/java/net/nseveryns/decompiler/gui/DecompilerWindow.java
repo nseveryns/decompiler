@@ -2,18 +2,16 @@ package net.nseveryns.decompiler.gui;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import net.nseveryns.decompiler.Project;
+import net.nseveryns.decompiler.transformer.Transformers;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
-import javax.swing.WindowConstants;
-
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
@@ -27,14 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
-
-import net.nseveryns.decompiler.Project;
-import net.nseveryns.decompiler.transformer.Transformers;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
  * @author nseveryns
@@ -115,7 +105,7 @@ public class DecompilerWindow extends JFrame {
      * Decompile to the file using the transformer associated to the file type.
      * This will use the Transformers enum to access the transformer instance.
      *
-     * @param file the file that will be decompiled.
+     * @param file   the file that will be decompiled.
      * @param ending the file type ending.
      *               This is used if the file is actually a temporary file with an incorrect ending
      */
@@ -153,7 +143,7 @@ public class DecompilerWindow extends JFrame {
                 code.setEditable(project.isEditable());
                 if (project.isEditable()) {
                     code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+                            Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
                             "actionMapKey");
                     code.getActionMap().put("actionMapKey", new AbstractAction() {
                         @Override

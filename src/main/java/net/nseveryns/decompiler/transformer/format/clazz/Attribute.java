@@ -15,7 +15,6 @@ public class Attribute {
     public Attribute(ByteBuf buf) {
         this.attributeNameIndex = buf.readUnsignedShort();
         int size = buf.readInt();
-        System.out.println("Each attribute has " + size + " inside");
         this.info = new byte[size];
         buf.readBytes(info);
     }

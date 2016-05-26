@@ -1,8 +1,6 @@
 package net.nseveryns.decompiler.gui;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
 public class DecompilerMenu extends JMenuBar {
 

@@ -13,7 +13,6 @@ public class MethodTable {
 
     public MethodTable(ByteBuf buf) {
         methods = new Method[buf.readUnsignedShort()];
-        System.out.println("Methods: " + methods.length);
         for (int i = 0; i < methods.length; i++) {
             methods[i] = new Method(buf);
         }
@@ -23,38 +22,10 @@ public class MethodTable {
         return methods;
     }
 
-    public class Method {
-        private final int flags;
-        private final int nameIndex;
-        private final int descriptorIndex;
-        private final Attribute[] attributes;
+    public class Method extends JavaClassEntry {
 
         public Method(ByteBuf buf) {
-            this.flags = buf.readUnsignedShort();
-            this.nameIndex = buf.readUnsignedShort();
-            this.descriptorIndex = buf.readUnsignedShort();
-            int length = buf.readUnsignedShort();
-            System.out.println("There are " + length + " attributes in one method.");
-            this.attributes = new Attribute[length];
-            for (int i = 0; i < this.attributes.length; i++) {
-                attributes[i] = new Attribute(buf);
-            }
-        }
-
-        public int getFlags() {
-            return flags;
-        }
-
-        public int getNameIndex() {
-            return nameIndex;
-        }
-
-        public int getDescriptorIndex() {
-            return descriptorIndex;
-        }
-
-        public Attribute[] getAttributes() {
-            return attributes;
+            super(buf);
         }
 
     }

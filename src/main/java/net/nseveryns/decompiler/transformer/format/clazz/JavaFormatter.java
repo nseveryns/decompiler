@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Format the data from class formatter. This will format it into familiar java code.
+ *
  * @author nseveryns
  */
 public class JavaFormatter {
@@ -18,13 +20,13 @@ public class JavaFormatter {
     private final int[] interfaces;
     private final FieldTable fields;
     private final MethodTable methods;
-    private final Map<Byte, String> codes;
+    private final Map<Integer, String> codes;
     private final StringBuilder builder;
     private final Set<String> imports;
     private int packageEndIndex;
 
     public JavaFormatter(int access, int identity, int superIdentity, ConstantPoolTable constants, int[] interfaces,
-                         FieldTable fields, MethodTable methods, Map<Byte, String> codes) {
+                         FieldTable fields, MethodTable methods, Map<Integer, String> codes) {
         this.accessBitmask = access;
         this.identity = identity;
         this.superIdentity = superIdentity;
@@ -66,7 +68,7 @@ public class JavaFormatter {
         }
         String classPath = readString(constants.getEntry(getShort(constants.getEntry(identity))));
         String path = FilenameUtils.getPath(classPath);
-        this.packageEndIndex =  path.length() + 9;
+        this.packageEndIndex = path.length() + 9;
         builder.insert(0, "package " + path.replace("/", ".").substring(0, path.length() - 1) + ";" + "\n");
         builder.append(FilenameUtils.getName(classPath)).append(" ");
         if (superIdentity != 0) {
@@ -119,20 +121,27 @@ public class JavaFormatter {
             switch (name) {
                 case "Code":
                     CodeAttribute code = new CodeAttribute(attribute);
-                    byte[] bytes = code.getCode();
-                    for (byte b : bytes) {
-                        String s = codes.get(b);
-                        if (s == null) {
-                            continue;
-                        }
-                        builder.append(s).append("\n");
-                    }
-                    for (Attribute subAttrib : code.getAttributes()) {
-                        System.out.println(readString(constants.getEntry(subAttrib.getAttributeNameIndex())));
-                    }
+                    builder.append(formatBytecode(code.getCode()));
+                    //for (Attribute subAttrib : code.getAttributes()) {
+                    //     //TODO: ADD SUB ATTRIBUTES.
+                    //}
             }
         }
         builder.append("\n").append(SPACES).append("}").append("\n");
+    }
+
+    private String formatBytecode(byte[] bytes) {
+        StringBuilder builder = new StringBuilder();
+        for (byte b : bytes) {
+            int unsignedInt = Byte.toUnsignedInt(b);
+            String s = codes.get(unsignedInt);
+            if (s == null) {
+                System.out.printf("0x%02x \n", unsignedInt);
+                continue;
+            }
+            builder.append(s).append("\n");
+        }
+        return builder.toString();
     }
 
     private void addFields() {
@@ -152,7 +161,7 @@ public class JavaFormatter {
             }
         }
         String type = readString(constants.getEntry(field.getDescriptorIndex()));
-        String substring = type.substring(1, type.length()-1);
+        String substring = type.substring(1, type.length() - 1);
         String className = FilenameUtils.getName(substring);
         addImport(FilenameUtils.getPath(substring) + className);
         builder.append(className).append(" ");
@@ -223,6 +232,7 @@ public class JavaFormatter {
         FieldAccessFlags(int flag) {
             this.flag = flag;
         }
+
         public int getFlag() {
             return flag;
         }
