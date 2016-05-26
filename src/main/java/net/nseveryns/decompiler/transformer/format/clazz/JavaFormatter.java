@@ -73,7 +73,7 @@ public class JavaFormatter {
             short superIndex = getShort(constants.getEntry(superIdentity));
             String superName = readString(constants.getEntry(superIndex));
             String name = FilenameUtils.getName(superName);
-            if (!name.equals("Object")) { //This is already default
+            if (!name.equals("Object") && !name.equals("Enum")) { //This is already default
                 addImport(superName);
                 builder.append("extends ").append(name).append(" ");
             }
