@@ -1,5 +1,8 @@
 package net.nseveryns.decompiler.transformer;
 
+/**
+ * Holds singleton instances of all the transformers.
+ */
 public enum Transformers {
     JAVA(new JavaDecompiler()),
     CLASS(new ClassDecompiler()),

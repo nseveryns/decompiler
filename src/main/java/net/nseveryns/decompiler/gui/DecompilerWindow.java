@@ -1,5 +1,8 @@
 package net.nseveryns.decompiler.gui;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import javax.swing.*;
 
 import java.awt.BorderLayout;
@@ -35,10 +38,10 @@ public class DecompilerWindow extends JFrame {
     private final ProjectSidebar sidebar;
     private final RSyntaxTextArea code;
     private final JScrollPane scrollPane;
-    private final Executor executor;
+    private final ListeningExecutorService executor;
 
     public DecompilerWindow() {
-        this.executor = Executors.newSingleThreadExecutor();
+        this.executor = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
         this.projects = new CopyOnWriteArrayList<>();
         this.setLayout(new BorderLayout());
         DecompilerMenu menu = new DecompilerMenu();
@@ -77,22 +80,39 @@ public class DecompilerWindow extends JFrame {
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+    /**
+     * Create a project from a file that has been drag and dropped.
+     *
+     * @param file the file that will be decompiled.
+     */
     private void addProject(File file) {
         String extension = FilenameUtils.getExtension(file.getName());
         switch (extension) {
             case "java":
                 this.addProjects(Transformers.JAVA.getInstance().createProject(file));
+                sidebar.updateUI();
                 break;
             case "class":
                 this.addProjects(Transformers.CLASS.getInstance().createProject(file));
+                sidebar.updateUI();
+                break;
             case "jar":
-                executor.execute(() -> this.addProjects(Transformers.JAR.getInstance().createProject(file)));
+                executor.submit(() -> this.addProjects(Transformers.JAR.getInstance().createProject(file)))
+                        .addListener(sidebar::updateUI, MoreExecutors.directExecutor());
                 break;
             default:
                 break;
         }
     }
 
+    /**
+     * Decompile to the file using the transformer associated to the file type.
+     * This will use the Transformers enum to access the transformer instance.
+     *
+     * @param file the file that will be decompiled.
+     * @param ending the file type ending.
+     *               This is used if the file is actually a temporary file with an incorrect ending
+     */
     private void decompileFile(File file, String ending) {
         code.setText("Decompiling... please wait.");
         switch (ending) {
@@ -111,31 +131,40 @@ public class DecompilerWindow extends JFrame {
         }
     }
 
+    /**
+     * This will take the project, create buttons for all of the files and then add listeners to them.
+     * The listeners will listen for a click and when it happens, it will decompile and display it in the text box.
+     * Additionally it will add a save function for editable files.
+     * At the very end it will update the UI and display the buttons.
+     *
+     * @param project the project that will be added to the screen.
+     */
     private void addProjects(Project project) {
         for (Map.Entry<String, File> entry : project.getFiles().entrySet()) {
             JButton field = new JButton(entry.getKey());
             field.addActionListener(e -> {
                 DecompilerWindow.this.decompileFile(entry.getValue(), FilenameUtils.getExtension(entry.getKey()));
                 code.setEditable(project.isEditable());
-                code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
-                        "actionMapKey");
-                code.getActionMap().put("actionMapKey", new AbstractAction() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        executor.execute(() -> {
-                            String text = code.getText();
-                            try {
-                                FileUtils.writeStringToFile(entry.getValue(), text);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        });
-                    }
-                });
+                if (project.isEditable()) {
+                    code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+                            "actionMapKey");
+                    code.getActionMap().put("actionMapKey", new AbstractAction() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            executor.execute(() -> {
+                                String text = code.getText();
+                                try {
+                                    FileUtils.writeStringToFile(entry.getValue(), text);
+                                } catch (IOException e1) {
+                                    e1.printStackTrace();
+                                }
+                            });
+                        }
+                    });
+                }
             });
             this.sidebar.add(field);
-            this.sidebar.updateUI();
         }
     }
 }

@@ -6,10 +6,19 @@ import javax.swing.JMenuItem;
 
 public class DecompilerMenu extends JMenuBar {
 
+    /**
+     * Add an item to the menu bar.
+     */
     public void addMenuItem(MenuItem item) {
         this.add(generateJMenu(item));
     }
 
+    /**
+     * Generate a menu from an item
+     *
+     * @param item the item to create an menu from
+     * @return a {@link JMenuItem} instance.
+     */
     private JMenuItem generateJMenu(MenuItem item) {
         JMenu menu = new JMenu(item.getTitle());
         menu.addActionListener(e -> {

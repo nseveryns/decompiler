@@ -6,6 +6,9 @@ import java.io.File;
 import java.util.Map;
 
 /**
+ * An over-glorified object representation of a list of files. This will hold data if the files
+ * are able to be edited and any other data that might be accumulated.
+ *
  * @author nseveryns
  */
 public class Project {

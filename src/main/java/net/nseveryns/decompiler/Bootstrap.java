@@ -5,7 +5,7 @@ import net.nseveryns.decompiler.gui.DecompilerWindow;
 /**
  * @author nseveryns
  */
-public class Decompiler {
+public class Bootstrap {
 
     public static void main(String[] args) {
         new DecompilerWindow();

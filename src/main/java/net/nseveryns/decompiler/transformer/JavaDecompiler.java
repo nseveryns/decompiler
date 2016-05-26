@@ -10,6 +10,13 @@ import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+/**
+ *
+ * This will create a project and decompile a java file. Java files are in plain text so it is safe to assume
+ * that editing will be enabled and that it can be read by just reading the file to a string. If java files
+ * change or any extensibility is added, this will be changed.
+ *
+ */
 public class JavaDecompiler implements Transformer {
     @Override
     public Project createProject(File file) {

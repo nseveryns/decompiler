@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+/**
+ *
+ * Represents a menu item. This is for use in settings menus.
+ *
+ */
 public class MenuItem {
     private final List<MenuItem> items;
     private final Consumer<Boolean> consumer;

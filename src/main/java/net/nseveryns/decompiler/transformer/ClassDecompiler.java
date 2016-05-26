@@ -55,7 +55,7 @@ public class ClassDecompiler implements Transformer {
     public void decompile(File file, Consumer<String> consumer) {
         try {
             byte[] bytes = Files.readAllBytes(file.toPath());
-            consumer.accept(formatHex(bytes));
+            consumer.accept(readToCode(bytes));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,7 +66,7 @@ public class ClassDecompiler implements Transformer {
         return FilenameUtils.getExtension(file.getName()).equals("class");
     }
 
-    private String formatHex(byte[] bytes) {
+    private String readToCode(byte[] bytes) {
         StringBuilder builder = new StringBuilder();
         ByteBuf buf = Unpooled.copiedBuffer(bytes);
         buf.skipBytes(8); //Skip cafebabe, major and minor

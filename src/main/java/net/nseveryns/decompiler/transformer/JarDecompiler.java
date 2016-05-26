@@ -17,6 +17,12 @@ import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
+/**
+ * The will extract the class and resources from inside of a jar file. This will only be used
+ * when a jar file is being decompiled.
+ *
+ * @author nseveryns
+ */
 public class JarDecompiler implements Transformer {
     @Override
     public Project createProject(File file) {

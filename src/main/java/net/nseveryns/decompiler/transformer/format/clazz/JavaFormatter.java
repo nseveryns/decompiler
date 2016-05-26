@@ -9,6 +9,7 @@ import java.util.Set;
  * @author nseveryns
  */
 public class JavaFormatter {
+    private static final String SPACES = "    ";
     private final int accessBitmask;
     private final int identity;
     private final ConstantPoolTable constants;
@@ -38,12 +39,18 @@ public class JavaFormatter {
     }
 
     private void addHeader() {
+        boolean classType = true;
         for (ClassAccessFlags flags : ClassAccessFlags.values()) {
             if ((accessBitmask & flags.flag) == flags.flag) {
                 builder.append(flags.name().toLowerCase()).append(" ");
+                if (flags == ClassAccessFlags.ENUM || flags == ClassAccessFlags.INTERFACE) {
+                    classType = false;
+                }
             }
         }
-        builder.append("class ");
+        if (classType) {
+            builder.append("class ");
+        }
         String classPath = readString(constants.getEntry(getShort(constants.getEntry(identity))));
         String path = FilenameUtils.getPath(classPath);
         this.packageEndIndex =  path.length() + 9;
@@ -59,7 +66,7 @@ public class JavaFormatter {
     }
 
     private void addField(FieldTable.Field field) {
-        builder.append("    ");
+        builder.append(SPACES);
         for (FieldAccessFlags flags : FieldAccessFlags.values()) {
             if ((field.getFlags() & flags.flag) == flags.flag) {
                 builder.append(flags.name().toLowerCase()).append(" ");
@@ -103,8 +110,8 @@ public class JavaFormatter {
         PUBLIC(0x0001),
         FINAL(0x0010),
         SUPER(0x0020),
-        INTERFACE(0x0200),
         ABSTRACT(0x0400),
+        INTERFACE(0x0200),
         SYNTHETIC(0x1000),
         ANNOTATION(0x2000),
         ENUM(0x4000);

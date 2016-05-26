@@ -6,6 +6,11 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+/**
+ * Constant pool reader and data holder based on the JVM specifications.
+ *
+ * @link http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
+ */
 public class ConstantPoolTable {
     private final int count;
     private final Entry[] entries;

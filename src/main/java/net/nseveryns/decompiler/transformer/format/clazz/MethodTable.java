@@ -2,6 +2,11 @@ package net.nseveryns.decompiler.transformer.format.clazz;
 
 import io.netty.buffer.ByteBuf;
 
+/**
+ * Container for method structures that are based on JVM specficiations.
+ *
+ * @Link http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.6
+ */
 public class MethodTable {
 
     private final Method[] methods;

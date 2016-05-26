@@ -13,6 +13,10 @@ import net.nseveryns.decompiler.Project;
 import org.apache.commons.io.FileUtils;
 
 /**
+ * Decompiles any file type that is not a java, class, or jar file.
+ *
+ * This will prompt the user if they want to open it in the default application on their computer.
+ *
  * @author nseveryns
  */
 public class DefaultDecompiler implements Transformer {
@@ -21,6 +25,9 @@ public class DefaultDecompiler implements Transformer {
         return new Project(file.getName(), ImmutableMap.of(file.getName(), file));
     }
 
+    /**
+     * Prompts the user if they want to use the default editor or not.
+     */
     @Override
     public void decompile(File file, Consumer<String> consumer) {
         JOptionPane pane = new JOptionPane("Do you want to open this with the default editor for this file type?",
