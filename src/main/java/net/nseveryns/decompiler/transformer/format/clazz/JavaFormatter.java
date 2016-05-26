@@ -3,6 +3,7 @@ package net.nseveryns.decompiler.transformer.format.clazz;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,21 +13,26 @@ public class JavaFormatter {
     private static final String SPACES = "    ";
     private final int accessBitmask;
     private final int identity;
+    private final int superIdentity;
     private final ConstantPoolTable constants;
     private final int[] interfaces;
     private final FieldTable fields;
     private final MethodTable methods;
+    private final Map<Byte, String> codes;
     private final StringBuilder builder;
     private final Set<String> imports;
     private int packageEndIndex;
 
-    public JavaFormatter(int access, int identity, ConstantPoolTable constants, int[] interfaces, FieldTable fields, MethodTable methods) {
+    public JavaFormatter(int access, int identity, int superIdentity, ConstantPoolTable constants, int[] interfaces,
+                         FieldTable fields, MethodTable methods, Map<Byte, String> codes) {
         this.accessBitmask = access;
         this.identity = identity;
+        this.superIdentity = superIdentity;
         this.constants = constants;
         this.interfaces = interfaces;
         this.fields = fields;
         this.methods = methods;
+        this.codes = codes;
         this.builder = new StringBuilder();
         this.imports = new HashSet<>();
         this.addHeader();
@@ -62,9 +68,18 @@ public class JavaFormatter {
         String path = FilenameUtils.getPath(classPath);
         this.packageEndIndex =  path.length() + 9;
         builder.insert(0, "package " + path.replace("/", ".").substring(0, path.length() - 1) + ";" + "\n");
-        builder.append(FilenameUtils.getName(classPath));
+        builder.append(FilenameUtils.getName(classPath)).append(" ");
+        if (superIdentity != 0) {
+            short superIndex = getShort(constants.getEntry(superIdentity));
+            String superName = readString(constants.getEntry(superIndex));
+            String name = FilenameUtils.getName(superName);
+            if (!name.equals("Object")) { //This is already default
+                addImport(superName);
+                builder.append("extends ").append(name).append(" ");
+            }
+        }
         if (interfaces.length > 0) {
-            builder.append(" implements ");
+            builder.append("implements ");
             for (int interfaceIndex : interfaces) {
                 short index = getShort(this.constants.getEntry(interfaceIndex));
                 String interfacePath = readString(this.constants.getEntry(index));
@@ -98,12 +113,15 @@ public class JavaFormatter {
             builder.append("() {").append("\n\n").append(SPACES).append("}").append("\n");
             return;
         }
-        builder.append(methodName);
-        builder.append("() {");
-        builder.append("\n\n");
-        builder.append(SPACES);
-        builder.append("}");
-        builder.append("\n");
+        builder.append(methodName).append("() {").append("\n");
+        for (Attribute attribute : method.getAttributes()) {
+            String name = readString(constants.getEntry(attribute.getAttributeNameIndex()));
+            switch (name) {
+                case "Code":
+                    CodeAttribute code = new CodeAttribute(attribute);
+            }
+        }
+        builder.append("\n").append(SPACES).append("}").append("\n");
     }
 
     private void addFields() {
@@ -223,5 +241,10 @@ public class JavaFormatter {
         public int getFlag() {
             return flag;
         }
+    }
+
+    private enum Attributes {
+        CODE;
+
     }
 }

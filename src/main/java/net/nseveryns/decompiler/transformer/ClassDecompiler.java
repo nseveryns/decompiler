@@ -79,25 +79,7 @@ public class ClassDecompiler implements Transformer {
             interfaces[i] = buf.readUnsignedShort();
         }
         FieldTable fields = new FieldTable(buf);
-
         MethodTable methods = new MethodTable(buf);
-        //for (MethodTable.Method method : methods.getMethods()) {
-        //    builder.append(method.formatFlags())
-        //            .append(new String(parser.getEntry(method.getNameIndex()+1).getBytes()))
-        //            .append("\n");
-        //}
-
-        return new JavaFormatter(accessBitmask, identity, parser, interfaces, fields, methods).format();
-        /*
-        StringBuilder sb = new StringBuilder(a.length * 2);
-        for (byte b : a) {
-            if (codes.containsKey(b)) {
-                sb.append("\n").append(codes.get(b)).append("   ");
-                continue;
-            }
-            sb.append(String.format("%02x", b & 0xff));
-        }
-        return sb.toString();
-        */
+        return new JavaFormatter(accessBitmask, identity, superIdentity, parser, interfaces, fields, methods, codes).format();
     }
 }

@@ -78,8 +78,4 @@ public class JarDecompiler implements Transformer {
     public boolean acceptFile(File file) {
         return FilenameUtils.getExtension(file.getName()).equals("jar");
     }
-
-    public void testSoemthing() {
-        //woot
-    }
 }

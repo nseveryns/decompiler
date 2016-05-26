@@ -32,7 +32,6 @@ public class FieldTable {
             this.nameIndex = buf.readUnsignedShort();
             this.descriptorIndex = buf.readUnsignedShort();
             int length = buf.readUnsignedShort();
-            System.out.println("There are " + length + " attributes in one field.");
             this.attributes = new Attribute[length];
             for (int i = 0; i < this.attributes.length; i++) {
                 attributes[i] = new Attribute(buf);
@@ -41,16 +40,6 @@ public class FieldTable {
 
         public int getFlags() {
             return flags;
-        }
-
-        public String formatFlags() {
-            StringBuilder builder = new StringBuilder();
-            for (AccessFlags accessFlags : AccessFlags.values()) {
-                if ((accessFlags.getFlag() & getFlags()) == 1) {
-                    builder.append(accessFlags.name().toLowerCase());
-                }
-            }
-            return builder.toString();
         }
 
         public int getNameIndex() {
@@ -63,29 +52,6 @@ public class FieldTable {
 
         public Attribute[] getAttributes() {
             return attributes;
-        }
-    }
-
-    enum AccessFlags {
-        PUBLIC(0x0001),
-        PRIVATE(0x0002),
-        PROTECTED(0x0004),
-        STATIC(0x0008),
-        FINAL(0x0010),
-        VOLATILE(0x0040),
-        TRANSIENT(0x0080),
-        SYNTHETIC(0x1000),
-        ENUM(0x4000);
-
-        private final int flag;
-
-        AccessFlags(int flag) {
-
-            this.flag = flag;
-        }
-
-        public int getFlag() {
-            return flag;
         }
     }
 }
