@@ -13,16 +13,18 @@ public class JavaFormatter {
     private final int accessBitmask;
     private final int identity;
     private final ConstantPoolTable constants;
+    private final int[] interfaces;
     private final FieldTable fields;
     private final MethodTable methods;
     private final StringBuilder builder;
     private final Set<String> imports;
     private int packageEndIndex;
 
-    public JavaFormatter(int access, int identity, ConstantPoolTable constants, FieldTable fields, MethodTable methods) {
+    public JavaFormatter(int access, int identity, ConstantPoolTable constants, int[] interfaces, FieldTable fields, MethodTable methods) {
         this.accessBitmask = access;
         this.identity = identity;
         this.constants = constants;
+        this.interfaces = interfaces;
         this.fields = fields;
         this.methods = methods;
         this.builder = new StringBuilder();
@@ -35,12 +37,13 @@ public class JavaFormatter {
 
     private void addImport(String importPath) {
         if (this.imports.add(importPath)) {
-            this.builder.insert(packageEndIndex, "\nimport " + importPath.replace("/", ".") + ";\n\n");
+            this.builder.insert(packageEndIndex, "\nimport " + importPath.replace("/", ".") + ";");
         }
     }
 
     private void addHeader() {
         boolean classType = true;
+        builder.append("\n\n");
         for (ClassAccessFlags flags : ClassAccessFlags.values()) {
             if ((accessBitmask & flags.flag) == flags.flag) {
                 if (flags == ClassAccessFlags.SYNTHETIC) {
@@ -60,6 +63,15 @@ public class JavaFormatter {
         this.packageEndIndex =  path.length() + 9;
         builder.insert(0, "package " + path.replace("/", ".").substring(0, path.length() - 1) + ";" + "\n");
         builder.append(FilenameUtils.getName(classPath));
+        if (interfaces.length > 0) {
+            builder.append(" implements ");
+            for (int interfaceIndex : interfaces) {
+                short index = getShort(this.constants.getEntry(interfaceIndex));
+                String interfacePath = readString(this.constants.getEntry(index));
+                addImport(interfacePath);
+                builder.append(FilenameUtils.getName(interfacePath));
+            }
+        }
         builder.append(" {\n");
     }
 
@@ -89,6 +101,7 @@ public class JavaFormatter {
         builder.append(methodName);
         builder.append("() {");
         builder.append("\n\n");
+        builder.append(SPACES);
         builder.append("}");
         builder.append("\n");
     }

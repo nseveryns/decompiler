@@ -87,7 +87,7 @@ public class ClassDecompiler implements Transformer {
         //            .append("\n");
         //}
 
-        return new JavaFormatter(accessBitmask, identity, parser, fields, methods).format();
+        return new JavaFormatter(accessBitmask, identity, parser, interfaces, fields, methods).format();
         /*
         StringBuilder sb = new StringBuilder(a.length * 2);
         for (byte b : a) {
