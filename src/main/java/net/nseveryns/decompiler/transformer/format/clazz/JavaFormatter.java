@@ -2,6 +2,7 @@ package net.nseveryns.decompiler.transformer.format.clazz;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,13 +21,13 @@ public class JavaFormatter {
     private final int[] interfaces;
     private final FieldTable fields;
     private final MethodTable methods;
-    private final Map<Integer, String> codes;
+    private final Map<Integer, InstructionSet> codes;
     private final StringBuilder builder;
     private final Set<String> imports;
     private int packageEndIndex;
 
     public JavaFormatter(int access, int identity, int superIdentity, ConstantPoolTable constants, int[] interfaces,
-                         FieldTable fields, MethodTable methods, Map<Integer, String> codes) {
+                         FieldTable fields, MethodTable methods, Map<Integer, InstructionSet> codes) {
         this.accessBitmask = access;
         this.identity = identity;
         this.superIdentity = superIdentity;
@@ -132,14 +133,44 @@ public class JavaFormatter {
 
     private String formatBytecode(byte[] bytes) {
         StringBuilder builder = new StringBuilder();
-        for (byte b : bytes) {
+        for (int i = 0, bytesLength = bytes.length; i < bytesLength; i++) {
+            byte b = bytes[i];
             int unsignedInt = Byte.toUnsignedInt(b);
-            String s = codes.get(unsignedInt);
+            InstructionSet s = codes.get(unsignedInt);
             if (s == null) {
                 System.out.printf("0x%02x \n", unsignedInt);
                 continue;
             }
-            builder.append(s).append("\n");
+            builder.append(SPACES).append(SPACES).append(s.getName()).append(" ");
+            int extra = s.getExtra();
+            if (extra > 0) {
+                byte[] extraCode = new byte[extra];
+                int value = new BigInteger(extraCode).intValue();
+                int index;
+                if (extraCode.length == 2) {
+                    index = (extraCode[0] << 8) | extraCode[1];
+                } else {
+                    index = value;
+                }
+                ConstantPoolTable.Entry entry = constants.getEntry(index);
+                if (entry.getType() == ConstantPoolTable.ConstantTagType.FIELD_REFERENCE
+                        || entry.getType() == ConstantPoolTable.ConstantTagType.METHOD_REFERENCE
+                        || entry.getType() == ConstantPoolTable.ConstantTagType.INTERFACE_METHOD_REFERENCE) {
+                    int firstIndex = getShort(entry);
+                    ConstantPoolTable.Entry classInfo = constants.getEntry(firstIndex);
+                    String name = readString(constants.getEntry(getShort(classInfo)));
+
+                    byte[] entryBytes = entry.getBytes();
+                    int secondIndex = (entryBytes[2] << 8) | entryBytes[3];
+                    entry = constants.getEntry(secondIndex);
+                    System.out.println(entry.getType().name() + " - " + entry.getBytes().length);
+                    String methodCall = readString(constants.getEntry(getShort(entry)));
+//                    String name = readString(constants.getEntry(getShort(entry.getBytes()[2], entry.getBytes()[3])));
+                    builder.append("#").append(name).append(methodCall);
+                }
+            }
+            builder.append("\n");
+            i+= extra;
         }
         return builder.toString();
     }

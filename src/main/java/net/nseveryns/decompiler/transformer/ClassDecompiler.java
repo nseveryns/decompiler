@@ -1,12 +1,13 @@
 package net.nseveryns.decompiler.transformer;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.nseveryns.decompiler.Project;
 import net.nseveryns.decompiler.transformer.format.clazz.ConstantPoolTable;
 import net.nseveryns.decompiler.transformer.format.clazz.FieldTable;
+import net.nseveryns.decompiler.transformer.format.clazz.InstructionSet;
 import net.nseveryns.decompiler.transformer.format.clazz.JavaFormatter;
 import net.nseveryns.decompiler.transformer.format.clazz.MethodTable;
 import org.apache.commons.io.FilenameUtils;
@@ -22,26 +23,27 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class ClassDecompiler implements Transformer {
-    private final Map<Integer, String> codes;
+    private final Map<Integer, InstructionSet> codes;
 
     public ClassDecompiler() {
         InputStream inputStream = this.getClass().getResourceAsStream("/opcodes.txt");
-        Map<Integer, String> codeToString = new HashMap<>();
+        Map<Integer, InstructionSet> codeToString = new HashMap<>();
         try {
             List<String> lines = IOUtils.readLines(inputStream);
             for (String line : lines) {
                 String code;
                 int identifier;
+                InstructionSet instruction;
                 try {
                     String[] split = line.split(" ");
                     code = split[0];
                     identifier = Integer.decode(split[1]);
-
+                    instruction = new InstructionSet(identifier, code, split.length > 2 ? Integer.parseInt(split[2]) : 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                     continue;
                 }
-                codeToString.put(identifier, code);
+                codeToString.put(identifier, instruction);
             }
         } catch (IOException e) {
             e.printStackTrace();
