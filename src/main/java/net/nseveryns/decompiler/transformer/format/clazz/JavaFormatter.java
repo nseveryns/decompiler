@@ -163,10 +163,10 @@ public class JavaFormatter {
                     byte[] entryBytes = entry.getBytes();
                     int secondIndex = (entryBytes[2] << 8) | entryBytes[3];
                     entry = constants.getEntry(secondIndex);
-                    System.out.println(entry.getType().name() + " - " + entry.getBytes().length);
+                   // System.out.println(entry.getType().name() + " - " + entry.getBytes().length);
                     String methodCall = readString(constants.getEntry(getShort(entry)));
 //                    String name = readString(constants.getEntry(getShort(entry.getBytes()[2], entry.getBytes()[3])));
-                    builder.append("#").append(name).append(methodCall);
+                    builder.append("#").append(getShort(entry)).append(SPACES).append("//").append(name).append(methodCall);
                 }
             }
             builder.append("\n");
